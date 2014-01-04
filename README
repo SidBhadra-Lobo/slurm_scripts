@@ -1,9 +1,11 @@
 Using BWA to estimate CRM2 abundance across hapmap2 lines.
 
-CRM2_BWA_abun.sh
+FILE:CRM2_BWA_bun.sh
 
 My first slurm script. Using BWA mem, will index the reference UTE, align against all hapmap2 lanes, isolates total reads and reads mapped per lane, then saves all total reads and all reads mapped into 2 seperate total_reads.stat and mapped_reads.stat files to provide vectors for R.
 
-CRM2_BWA_abun_singlefile.sh
+FILE:CRM2_BWA_abun_singlefile.sh
 
 This is the test script. By running the script on a single file instead of on the entire data set, a single error is not magnified across all files.
+
+## NOTE: These are paired end reads. Between paired end and single end reads, the aligner throws out a certain number of reads per each input file. With fewer total reads, there are correspondingly fewer reads mapped. Upon further testing, the RPKM (normalized) values produced by SE and PE reads vary slightly (~ 5%).
