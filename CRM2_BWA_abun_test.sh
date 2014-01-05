@@ -1,11 +1,11 @@
+#!/bin/bash
+
 ##########
 ## Using BWA mem to estimate CRM2 abundance for a single hapmap2 lane. (This is a test script, hence only aligning a single lane).
 ##########
 
-#!/bin/bash
-
 ## -D sets your project directory.
-#SBATCH -D /group/jrigrp/bigd_fastq/
+#SBATCH -D /home/sbhadral/Projects/CRM2_abun/
 
 ## -o sets where standard output (from batch script) goes.
 ## %j places the job number in the name of the file.
@@ -15,14 +15,14 @@
 #SBATCH -e /home/sbhadral/Projects/slurm_log/CRM2_abun_stderr_%j.txt
 
 ## -J sets the job name.
-#SBATCH -J CRM2_abun
+#SBATCH -J CRM2_abun_test
 
 ## Send email notifications.
 #SBATCH --mail-type=ALL # other options are END, NONE, BEGIN, FAIL
 #SBATCH --mail-user=sbhadralobo@ucdavis.edu 
 
 ## Specify the partition.
-#SBATCH --partition=hi # other options are low, med, bigmem, serial.
+#SBATCH --partition=serial # other options are low, med, bigmem, serial.
 
 ## Specify the number of requested nodes.
 #SBATCH --nodes=1
@@ -42,11 +42,14 @@ set -u
 
 ## Copy files of interest into my directory.
 
-cp B73_FC42G13AAXX_1_*.txt.bz2 /home/sbhadral/Projects/CRM2_abun/
+##cp B73_FC42G13AAXX_1_*.txt.bz2 /home/sbhadral/Projects/CRM2_abun/
 
 ## Change to CRM2_abun directory.
 
-cd /home/sbhadral/Projects/CRM2_abun/
+##cd /home/sbhadral/Projects/CRM2_abun/
+##########
+
+#### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
 
 ## Indexing the reference TE.
 
@@ -64,7 +67,8 @@ cd /home/sbhadral/Projects/CRM2_abun/
 Projects/samtools-0.1.19/samtools flagstat check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 > reads.stat
 
 ## Remove excess files.
-rm B73_FC42G13AAXX_1_*.txt.bz2
+## Being a test, I will keep the test files for further testing.
+## rm B73_FC42G13AAXX_1_*.txt.bz2
 rm check.bam
 
 ##########

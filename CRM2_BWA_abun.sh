@@ -1,8 +1,9 @@
+#!/bin/bash
+
 ##########
 ## Using BWA mem to estimate CRM2 abundance across hapmap2 inbred lines.
 ##########
 
-#!/bin/bash
 
 ## -D sets your project directory.
 #SBATCH -D /group/jrigrp/bigd_fastq/
