@@ -22,7 +22,7 @@
 #SBATCH --mail-user=sbhadralobo@ucdavis.edu 
 
 ## Specify the partition.
-#SBATCH --partition=serial # other options are low, med, bigmem, serial.
+#SBATCH --partition=bigmem # other options are low, med, hi, bigmem, serial.
 
 ## Specify the number of requested nodes.
 #SBATCH --nodes=1
