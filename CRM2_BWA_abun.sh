@@ -47,6 +47,7 @@ set -u
 ##	cp $FILE /home/sbhadral/Projects/CRM2_abun/
 ##done
 
+## A select loop for running the entire process on one file at a time.
 select FILE in *[1-2].txt.bz2
 do
 	case $FILE in
