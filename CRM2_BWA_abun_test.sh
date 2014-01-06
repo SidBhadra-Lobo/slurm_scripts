@@ -45,18 +45,18 @@ module load /share/apps/modulefiles/hpc/bwa/0.7.5a
 
 ## Indexing the reference TE.
 
-/share/apps/bwa-0.7.5a/bwa index -p CRM2_abun/UniqueCRM2 /home/sbhadral/Projects/CRM2_abun/UniqueCRM2.fasta
+bwa index -p CRM2_abun/UniqueCRM2 /home/sbhadral/Projects/CRM2_abun/UniqueCRM2.fasta
 
 ## Take a test paired end file and use BWA mem to align both mates against the reference. 
 ## NOTE: samtools -bS forces bam format output, so no need to label the output file as .bam (check.bam).
 
-/share/apps/bwa-0.7.5a/bwa mem CRM2_abun/UniqueCRM2 <(bzip2 -dc CRM2_abun/B73_FC42G13AAXX_1_1.txt.bz2)  <(bzip2 -dc CRM2_abun/B73_FC42G13AAXX_1_2.txt.bz2) | samtools -bS - check
+bwa mem CRM2_abun/UniqueCRM2 <(bzip2 -dc CRM2_abun/B73_FC42G13AAXX_1_1.txt.bz2)  <(bzip2 -dc CRM2_abun/B73_FC42G13AAXX_1_2.txt.bz2) | samtools -b - check
 
 ## From the check.bam, run flagstat for alignment statistics.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
 ## Save these two numbers to a file (reads.stat).
 
-/home/sbhadral/Projects/samtools/samtools flagstat check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 > reads.stat
+samtools flagstat check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 > reads.stat
 
 ## Remove excess files.
 ## Being a test, I will keep the test files for further testing.
