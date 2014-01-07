@@ -6,12 +6,13 @@
 
 ## -D sets directory
 #SBATCH -D /home/sbhadral/Projects/
+
 ## -J sets the job name
-
 #SBATCH -J CRM2_abun
-## -p sets the partition to run the job on
 
+## -p sets the partition to run the job on
 #SBATCH -p serial
+
 ## -o sets the destination for the stdout. %j includes the job number in the name.
 #SBATCH -o /home/sbhadral/Projects/slurm_log/CRM2_abun_stdout_%j.txt 
 
