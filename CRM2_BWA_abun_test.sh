@@ -48,8 +48,6 @@ bwa mem CRM2_abun/UniqueCRM2 <(bzip2 -dc CRM2_abun/B73_FC42G13AAXX_1_1.txt.bz2) 
 ##samtools flagstat /home/sbhadral/Projects/check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 > reads.stat
 
 ## Remove excess files.
-## Being a test, I will keep the test files for further testing.
-## rm B73_FC42G13AAXX_1_*.txt.bz2
 ##rm check.bam
 
 ##########
