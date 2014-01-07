@@ -28,14 +28,12 @@
 
 ##cp B73_FC42G13AAXX_1_*.txt.bz2 /home/sbhadral/Projects/CRM2_abun/
 
-## Change to CRM2_abun directory.
 
-##cd /home/sbhadral/Projects/CRM2_abun/
 ##########
 
 #### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
 
-## Load the BWA module.
+## Load the BWA module. Once the module is loaded, it is already in your path. So just 'bwa mem' will suffice.
 
 module load /share/apps/modulefiles/hpc/bwa/0.7.5a
 
@@ -48,7 +46,8 @@ module load /share/apps/modulefiles/hpc/bwa/0.7.5a
 bwa index -p CRM2_abun/UniqueCRM2 /home/sbhadral/Projects/CRM2_abun/UniqueCRM2.fasta
 
 ## Take a test paired end file and use BWA mem to align both mates against the reference. 
-## NOTE: samtools -bS forces bam format output, so no need to label the output file as .bam (check.bam).
+## NOTE: samtools is already available in your path, so no need to load it's module.
+## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
 bwa mem CRM2_abun/UniqueCRM2 <(bzip2 -dc CRM2_abun/B73_FC42G13AAXX_1_1.txt.bz2)  <(bzip2 -dc CRM2_abun/B73_FC42G13AAXX_1_2.txt.bz2) | samtools view -Sb - > check.bam
 
