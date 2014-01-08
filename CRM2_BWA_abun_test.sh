@@ -24,14 +24,13 @@
 
 list=$(*[1-2].txt.bz2)
 
-for %a in list
+for f in list
 
 do	
 
 ## Run script.
 	srun /home/sbhadral/Projects/scripts/CRM2_BWA_abun.sh 
 	
-
 done
 
 ########## script starts here 
@@ -45,13 +44,13 @@ module load /share/apps/modulefiles/hpc/bwa/0.7.5a
 
 ## Indexing the reference TE.
 
-bwa index -p CRM2_abun/UniqueCRM2 /home/sbhadral/Projects/CRM2_abun/UniqueCRM2.fasta
+bwa index -p UniqueCRM2 /home/sbhadral/Projects/CRM2_abun/UniqueCRM2.fasta
 
 ## Take a test paired end file and run BWA mem, convert .sam to .bam, isolate flagstat output lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p). Send to stdout.
 ## NOTE: samtools is already available in your path, so no need to load it's module.
 ## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
-bwa mem CRM2_abun/UniqueCRM2 <(bzip2 -dc list)  <(bzip2 -dc list) | samtools view -Sb - > check.bam
+bwa mem UniqueCRM2 <(bzip2 -dc list)  <(bzip2 -dc list) | samtools view -Sb - > check.bam
 
 ## From the check.bam, run flagstat for alignment statistics.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
