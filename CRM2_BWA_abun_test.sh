@@ -33,21 +33,10 @@ set -u
 list1=(*[1].txt.bz2)
 list2=(*[2].txt.bz2)
 
-for file1 in ${list1}
-
-do	
-	for file2 in ${list2}
+file1=${list1}
+file2=${list2}
 	
-	do 
 	
-##Run script.
-	echo "submitting: ${file1}"
-	echo "subimtting: ${file2}"
-		
-done
-
-########## script starts here 
-
 #### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
 
 ## Load the BWA module. Once the module is loaded, it is already in your path. So just 'bwa mem' will suffice.
@@ -73,6 +62,12 @@ samtools flagstat /home/sbhadral/Projects/check.bam  | sed -n -e 1p -e 3p | cut 
 
 ## Remove excess files.
 rm check.bam
+
+	
+	echo "submitting: ${file1}"
+	echo "subimtting: ${file2}"
+		
+
 
 ##########
 ##END
