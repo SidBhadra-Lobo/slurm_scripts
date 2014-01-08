@@ -58,7 +58,7 @@ bwa mem UniqueCRM2 <(bzip2 -dc ${file1})  <(bzip2 -dc ${file2}) | samtools view 
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
 ## Save these two numbers to a file (reads.stat).
 
-samtools flagstat /home/sbhadral/Projects/check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 
+samtools flagstat /home/sbhadral/Projects/check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 1>>CRM2_abun_stdout_%j.txt
 
 ## Remove excess files.
 rm check.bam
