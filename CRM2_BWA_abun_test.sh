@@ -5,16 +5,16 @@
 ##########
 
 ## -D sets directory
-#SBATCH -D /home/sbhadral/Projects/CRM2_abun
+#SBATCH -D /home/sbhadral/Projects/CRM2_abun/
 
 ## -J sets the job name
-#SBATCH -J CRM2_abun
+##SBATCH -J CRM2_abun
 
 ## -p sets the partition to run the job on
 #SBATCH -p hi
 
-## -o sets the destination for the stdout. %j sets the job name, %a includes the file name.
-#SBATCH -o /home/sbhadral/Projects/slurm_log/CRM2abun_%j_%a.out
+## -o sets the destination for the stdout. %j sets the job name.
+#SBATCH -o /home/sbhadral/Projects/slurm_log/CRM2_abun_stdout_%j.txt
 
 ## -e sets the destination for the stderr.
 #SBATCH -e /home/sbhadral/Projects/slurm_log/CRM2_abun_stderr_%j.txt
@@ -22,16 +22,18 @@
 ## -c sets number of cpus required per task
 #SBATCH -c 1
 
-list=$(*[1-2].txt.bz2)
+## Loop through all files while executing the script across all files in parallel.
 
-for f in list
+##list=(*[1-2].txt.bz2)
 
-do	
+##for file in ${list}
+
+##do	
 
 ## Run script.
-	srun /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh 
+	##echo "submitting: ${file}"
 	
-done
+##done
 
 ########## script starts here 
 ########## "!!" begins comments for things I'm not sure about.
@@ -42,6 +44,7 @@ done
 
 module load /share/apps/modulefiles/hpc/bwa/0.7.5a
 
+
 ## Indexing the reference TE.
 
 bwa index -p UniqueCRM2 /home/sbhadral/Projects/CRM2_abun/UniqueCRM2.fasta
@@ -50,7 +53,7 @@ bwa index -p UniqueCRM2 /home/sbhadral/Projects/CRM2_abun/UniqueCRM2.fasta
 ## NOTE: samtools is already available in your path, so no need to load it's module.
 ## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
-bwa mem UniqueCRM2 <(bzip2 -dc list)  <(bzip2 -dc list) | samtools view -Sb - > check.bam
+bwa mem UniqueCRM2 <(bzip2 -dc ${file1})  <(bzip2 -dc ${file2}) | samtools view -Sb - > check.bam
 
 ## From the check.bam, run flagstat for alignment statistics.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
