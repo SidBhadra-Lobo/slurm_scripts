@@ -22,18 +22,29 @@
 ## -c sets number of cpus required per task
 #SBATCH -c 1
 
+## -e (errexit) Exit immediately if a simple command exits with a non-zero status
+set -e
+
+## -u (nounset) Treat unset variables as an error when performing parameter expansion.
+set -u
+
 ## Loop through all files while executing the script across all files in parallel.
 
-##list=(*[1-2].txt.bz2)
+list1=(*[1].txt.bz2)
+list2=(*[2].txt.bz2)
 
-##for file in ${list}
+for file1 in ${list1}
 
-##do	
-
-## Run script.
-	##echo "submitting: ${file}"
+do	
+	for file2 in ${list2}
 	
-##done
+	do 
+	
+##Run script.
+	echo "submitting: ${file1}"
+	echo "subimtting: ${file2}"
+		
+done
 
 ########## script starts here 
 
