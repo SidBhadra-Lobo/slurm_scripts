@@ -36,7 +36,6 @@
 ##done
 
 ########## script starts here 
-########## "!!" begins comments for things I'm not sure about.
 
 #### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
 
