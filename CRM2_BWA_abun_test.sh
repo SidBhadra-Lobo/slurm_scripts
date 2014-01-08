@@ -29,7 +29,7 @@ for f in list
 do	
 
 ## Run script.
-	srun /home/sbhadral/Projects/scripts/CRM2_BWA_abun.sh 
+	srun /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh 
 	
 done
 
