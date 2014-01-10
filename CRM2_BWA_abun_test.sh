@@ -14,7 +14,7 @@
 #SBATCH -p hi
 
 ## -o sets the destination for the stdout. %j sets the job name.
-#SBATCH -o /home/sbhadral/Projects/slurm_log/CRM2_abun_stdout_%j.txt
+#SBATCH -o /home/sbhadral/Projects/slurm_log/CRM2_j%.txt
 
 ## -e sets the destination for the stderr.
 #SBATCH -e /home/sbhadral/Projects/slurm_log/CRM2_abun_stderr_%j.txt
@@ -30,12 +30,17 @@ set -u
 
 ## Loop through all files while executing the script across all files in parallel.
 
-list1=(*[1].txt.bz2)
-list2=(*[2].txt.bz2)
 
-file1=${list1}
-file2=${list2}
+## command line input for running this script.
+## list=(*[1-2].txt.bz2)
+## file=$list
+## for file in $list ; do sbatch CRM2_BWA_abun_test.sh ; done
+
+	##google command line arguements in bash 
 	
+	## bob = "tree"
+	## echo %
+	## echo $bob
 	
 #### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
 
@@ -46,27 +51,23 @@ module load /share/apps/modulefiles/hpc/bwa/0.7.5a
 
 ## Indexing the reference TE.
 
-bwa index -p UniqueCRM2 /home/sbhadral/Projects/CRM2_abun/UniqueCRM2.fasta
+bwa index -p UniqueCRM2 UniqueCRM2.fasta
 
 ## Take a test paired end file and run BWA mem, convert .sam to .bam, isolate flagstat output lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p). Send to stdout.
 ## NOTE: samtools is already available in your path, so no need to load it's module.
 ## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
-bwa mem UniqueCRM2 <(bzip2 -dc ${file1})  <(bzip2 -dc ${file2}) | samtools view -Sb - > check.bam
+bwa mem UniqueCRM2 <(bzip2 -dc ${file1})  <(bzip2 -dc ${file2}) | samtools view -Sb - > check_${file}.bam
 
 ## From the check.bam, run flagstat for alignment statistics.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
 ## Save these two numbers to a file (reads.stat).
 
-samtools flagstat /home/sbhadral/Projects/check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 1>>CRM2_abun_stdout_%j.txt
+samtools flagstat check_${file}.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 | awk '{printf "%s%s",$0,(NR%2?FS:RS)}' >> /home/sbhadral/Projects/slurm_log/CRM2_j%_${file}.txt
 
 ## Remove excess files.
-rm check.bam
+rm check_${file}.bam
 
-	
-	echo "submitting: ${file1}"
-	echo "subimtting: ${file2}"
-		
 
 
 ##########
