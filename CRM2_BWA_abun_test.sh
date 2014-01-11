@@ -62,9 +62,13 @@ bwa index -p UniqueCRM2 UniqueCRM2.fasta
 
 bwa mem UniqueCRM2 <(bzip2 -dc $1 )  <(bzip2 -dc "$file" ) | samtools view -Sb - > check.bam
 
-## From the check.bam, run flagstat for alignment statistics.
+## From the check.bam, run flagstat for alignment statistics, pipe to stdout.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
-## Save these two numbers to a file (reads.stat).
+## Separate out first tab delimited column, now only 2 rows.
+## Take second value, move to column 2 in row 1. 
+## Add a third column with the corresponding lane.
+## Concatenate all lane alignment outputs into a single table.
+## Save to a single file in Projects/
 
 samtools flagstat check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 | awk '{printf "%s%s",$0,(NR%2?FS:RS)}' | awk '{print $0, "$file"}' | cat - >> /home/sbhadral/Projects/reads.stat 
 
