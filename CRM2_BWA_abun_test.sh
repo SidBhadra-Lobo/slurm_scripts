@@ -14,10 +14,10 @@
 #SBATCH -p hi
 
 ## -o sets the destination for the stdout. %j sets the job name.
-#SBATCH -o /home/sbhadral/Projects/slurm_log/CRM2_j%.txt
+#SBATCH -o /home/sbhadral/Projects/slurm_log/CRM2_out_%j.txt
 
 ## -e sets the destination for the stderr.
-#SBATCH -e /home/sbhadral/Projects/slurm_log/CRM2_abun_stderr_%j.txt
+#SBATCH -e /home/sbhadral/Projects/slurm_log/CRM2_stderr_%j.txt
 
 ## -c sets number of cpus required per task
 #SBATCH -c 1
@@ -32,10 +32,13 @@ set -u
 
 
 ## command line input for running this script.
-## list=(*[1-2].txt.bz2)
-## file=$list
-## for file in $list ; do sbatch CRM2_BWA_abun_test.sh ; done
 
+## list=$(ls *[1-2].txt.bz2)
+
+## for file in "$list" ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh  ; done
+
+ 
+ 
 	##google command line arguements in bash 
 	
 	## bob = "tree"
@@ -57,16 +60,16 @@ bwa index -p UniqueCRM2 UniqueCRM2.fasta
 ## NOTE: samtools is already available in your path, so no need to load it's module.
 ## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
-bwa mem UniqueCRM2 <(bzip2 -dc ${file1})  <(bzip2 -dc ${file2}) | samtools view -Sb - > check_${file}.bam
+bwa mem UniqueCRM2 <(bzip2 -dc $1 )  <(bzip2 -dc "$file" ) | samtools view -Sb - > check.bam
 
 ## From the check.bam, run flagstat for alignment statistics.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
 ## Save these two numbers to a file (reads.stat).
 
-samtools flagstat check_${file}.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 | awk '{printf "%s%s",$0,(NR%2?FS:RS)}' >> /home/sbhadral/Projects/slurm_log/CRM2_j%_${file}.txt
+samtools flagstat check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 | awk '{printf "%s%s",$0,(NR%2?FS:RS)}' | awk '{print $0, "$file"}' | cat - >> /home/sbhadral/Projects/reads.stat 
 
 ## Remove excess files.
-rm check_${file}.bam
+rm check.bam
 
 
 
