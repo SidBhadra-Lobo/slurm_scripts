@@ -66,11 +66,11 @@ bwa mem UniqueCRM2 <(bzip2 -dc $file )  <(bzip2 -dc $file2 ) | samtools view -Sb
 ## Concatenate all lane alignment outputs into a single table.
 ## Save to a single file in Projects/
 
-samtools flagstat check.bam  	| 
-		sed -n -e 1p -e 3p 		| 
-			cut -d " " -f 1	 	| 
-					awk '{printf "%s%s",$0,(NR%2?FS:RS)}' 			| 
-							awk '{print $0, ${file:0:((-10))}"}' 	| 
+samtools flagstat check.bam 	| 
+		sed -n -e 1p -e 3p 	| 
+			cut -d " " -f 1 	| 
+					awk '{printf "%s%s",$0,(NR%2?FS:RS)}'	| 
+							awk '{print $0, ${file:0:((-10))}"}'	| 
 									cat - >> /home/sbhadral/Projects/reads.stat 
 
 ## Remove excess files.
