@@ -33,17 +33,12 @@ set -u
 
 ## command line input for running this script.
 
-## list=$(ls *[1-2].txt.bz2)
+ list=$(ls *[1-2].txt.bz2)
 
 ## for file in "$list" ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh  ; done
 
+ file=$list
  
- 
-	##google command line arguements in bash 
-	
-	## bob = "tree"
-	## echo %
-	## echo $bob
 	
 #### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
 
@@ -60,9 +55,9 @@ bwa index -p UniqueCRM2 UniqueCRM2.fasta
 ## NOTE: samtools is already available in your path, so no need to load it's module.
 ## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
-bwa mem UniqueCRM2 <(bzip2 -dc $1 )  <(bzip2 -dc "$file" ) | samtools view -Sb - > check.bam
+bwa mem UniqueCRM2 <(bzip2 -dc ${file%*_1.*} )  <(bzip2 -dc ${file%*_2.*}) | samtools view -Sb - > check.bam
 
-## From the check.bam, run flagstat for alignment statistics, pipe to stdout.
+## From the check.bam, run Samtools flagstat for alignment statistics, pipe to stdout.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
 ## Separate out first tab delimited column, now only 2 rows.
 ## Take second value, move to column 2 in row 1. 
@@ -70,7 +65,7 @@ bwa mem UniqueCRM2 <(bzip2 -dc $1 )  <(bzip2 -dc "$file" ) | samtools view -Sb -
 ## Concatenate all lane alignment outputs into a single table.
 ## Save to a single file in Projects/
 
-samtools flagstat check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 | awk '{printf "%s%s",$0,(NR%2?FS:RS)}' | awk '{print $0, "$file"}' | cat - >> /home/sbhadral/Projects/reads.stat 
+samtools flagstat check.bam  | sed -n -e 1p -e 3p | cut -d " " -f 1 | awk '{printf "%s%s",$0,(NR%2?FS:RS)}' | awk '{print $0, "$file/*"}' | cat - >> /home/sbhadral/Projects/reads.stat 
 
 ## Remove excess files.
 rm check.bam
