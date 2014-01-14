@@ -34,7 +34,7 @@ set -u
 ## command line input for running this script.
 
 
-## for i in $(ls *[1-2].txt.bz2) ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh $i ; done
+## for i in "$(ls *[1-2].txt.bz2)" ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh $i ; done
 
 	
 file=$1
@@ -70,7 +70,7 @@ samtools flagstat check.bam 	|
 		sed -n -e 1p -e 3p 	| 
 			cut -d " " -f 1 	| 
 					awk '{printf "%s%s",$0,(NR%2?FS:RS)}'	| 
-							awk '{print $0, ${file:0:((-10))}"}'	| 
+							awk '{print $0, "${file:0:((-10))}"}'	| 
 									cat - >> /home/sbhadral/Projects/reads.stat 
 
 ## Remove excess files.
