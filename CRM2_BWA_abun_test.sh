@@ -71,9 +71,9 @@ bwa mem UniqueCRM2 <(bzip2 -dc $file )  <(bzip2 -dc $file2 ) | samtools view -Sb
 ## Save to a single file in Projects/
 
 samtools flagstat check.bam 	| 
-		sed -n -e 1p -e 3p 	| 
+		sed -n -e 1p -e 3p 		| 
 			cut -d " " -f 1 	| 
-					awk '{printf "%s%s",$0,(NR%2?FS:RS)}'	| 
+					paste -d ' ' - - 					|
 							awk '{print $0, $file2 }'	| 
 									cat - >> /home/sbhadral/Projects/reads.stat 
 
