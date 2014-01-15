@@ -28,24 +28,30 @@ set -e
 ## -u (nounset) Treat unset variables as an error when performing parameter expansion.
 set -u
 
+## Send email notifications. (Too fancy for this test, will reincorporate later.)
+#SBATCH --mail-type=END # options are END, NONE, BEGIN, FAIL, ALL
+#SBATCH --mail-user=sbhadralobo@ucdavis.edu 
+
 ## Loop through all files while executing the script across all files in parallel.
 
 
 ## command line input for running this script.
 
+## cd /home/sbhadral/Projects/CRM2_abun
 
-## for i in "$(ls *[1-2].txt.bz2)" ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh $i ; done
+## for i in "$(ls *[1-2].txt.bz2)" ; do module load /share/apps/modulefiles/hpc/bwa/0.7.5a; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh $i ; done
 
 	
 file=$1
 file2=$(echo $file | sed -e 's/_1_1/_1_2/g')
+#file3=${file::((0)):((-10))}
 	
 	
 #### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
 
 ## Load the BWA module. Once the module is loaded, it is already in your path. So just 'bwa mem' will suffice.
 
-module load /share/apps/modulefiles/hpc/bwa/0.7.5a
+##module load /share/apps/modulefiles/hpc/bwa/0.7.5a
 
 
 ## Indexing the reference TE.
@@ -70,7 +76,7 @@ samtools flagstat check.bam 	|
 		sed -n -e 1p -e 3p 	| 
 			cut -d " " -f 1 	| 
 					awk '{printf "%s%s",$0,(NR%2?FS:RS)}'	| 
-							awk '{print $0, "${file:0:((-10))}"}'	| 
+							awk '{print $0, file2 }'	| 
 									cat - >> /home/sbhadral/Projects/reads.stat 
 
 ## Remove excess files.
