@@ -41,12 +41,12 @@ set -u
 
 #### Load the BWA module. Once the module is loaded, it is already in your path. So just 'bwa mem' will suffice.
 
-## for i in "$(ls *[1-2].txt.bz2)" ; do module load /share/apps/modulefiles/hpc/bwa/0.7.5a ; sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh $i ; done
+## for file in "$(ls *[1-2].txt.bz2)" ; do module load /share/apps/modulefiles/hpc/bwa/0.7.5a ; sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh "$file" ; done
 
 	
-file=$1
+file1=$1
 file2=$(echo $file | sed -e 's/_1_1/_1_2/g')
-#file3=${file::((0)):((-10))}
+file3=$(echo $file | sed -e 's/_[1-2]\.txt.bz2//')
 	
 	
 #### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
@@ -60,7 +60,7 @@ bwa index -p UniqueCRM2 UniqueCRM2.fasta
 ## NOTE: samtools is already available in your path, so no need to load it's module.
 ## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
-bwa mem UniqueCRM2 <(bzip2 -dc $file )  <(bzip2 -dc $file2 ) | samtools view -Sb - > check.bam
+bwa mem UniqueCRM2 <(bzip2 -dc $file1 )  <(bzip2 -dc $file2 ) | samtools view -Sb - > check.bam
 
 ## From the check.bam, run Samtools flagstat for alignment statistics, pipe to stdout.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
@@ -73,12 +73,16 @@ bwa mem UniqueCRM2 <(bzip2 -dc $file )  <(bzip2 -dc $file2 ) | samtools view -Sb
 samtools flagstat check.bam 	| 
 		sed -n -e 1p -e 3p 		| 
 			cut -d " " -f 1 	| 
-					paste -d ' ' - - 					|
-							awk '{print $0, $file2 }'	| 
-									cat - >> /home/sbhadral/Projects/reads.stat 
+					paste -d ' ' - - > "${file3}".reads 	;
+
+							echo "${file3}"  	| 
+									paste -d ' ' - "${file3}".reads > /home/sbhadral/Projects/"${file3}".abun
 
 ## Remove excess files.
 rm check.bam
+rm reads."${file3}"
+
+
 
 
 
