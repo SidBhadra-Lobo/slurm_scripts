@@ -11,7 +11,7 @@
 ##SBATCH -J CRM2_abun
 
 ## -p sets the partition to run the job on
-#SBATCH -p hi
+#SBATCH -p serial
 
 ## -o sets the destination for the stdout. %j sets the job name.
 #SBATCH -o /home/sbhadral/Projects/slurm_log/CRM2_out_%j.txt
@@ -21,6 +21,9 @@
 
 ## -c sets number of cpus required per task
 #SBATCH -c 1
+
+## -N requests the min and/or max number of nodes to be allocated to this job.
+#SBATCH -N 3
 
 ## -e (errexit) Exit immediately if a simple command exits with a non-zero status
 set -e
@@ -45,8 +48,8 @@ set -u
 
 	
 file1=$1
-file2=$(echo $file | sed -e 's/_1_1/_1_2/g')
-file3=$(echo $file | sed -e 's/_[1-2]\.txt.bz2//')
+file2=$(echo $file1 | sed -e 's/_1_1/_1_2/g')
+file3=$(echo $file1 | sed -e 's/_[1-2]\.txt.bz2//')
 	
 	
 #### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
@@ -80,7 +83,7 @@ samtools flagstat check.bam 	|
 
 ## Remove excess files.
 rm check.bam
-rm reads."${file3}"
+rm "${file3}".reads
 
 
 
