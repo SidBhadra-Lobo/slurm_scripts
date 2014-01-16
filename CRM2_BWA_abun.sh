@@ -1,35 +1,31 @@
-#!/bin/bash
+#!/bin/bash -l
 
 ##########
 ## Using BWA mem to estimate CRM2 abundance across hapmap2 inbred lines.
 ##########
 
-## -D sets your project directory.
+## -D sets project directory.
 #SBATCH -D /group/jrigrp/bigd_fastq/
-
-## -o sets where standard output (from batch script) goes.
-## %j places the job number in the name of the file.
-#SBATCH -o /home/sbhadral/Projects/slurm_log/CRM2_abun_stdout_%j.txt 
-
-## -e sets where standard error (from batch script) goes.
-#SBATCH -e /home/sbhadral/Projects/slurm_log/CRM2_abun_stderr_%j.txt
 
 ## -J sets the job name.
 #SBATCH -J CRM2_abun
 
-## Send email notifications.
-#SBATCH --mail-type=ALL # other options are END, NONE, BEGIN, FAIL
+## -p Specifies the partition.
+#SBATCH -p serial # some options are low, med, hi, bigmem, serial.
+
+## -c Specify the number of cpus per task.
+#SBATCH -c 2
+
+## -e  sets the destination for the stderr.
+## %j places the job number as the filename.
+#SBATCH -e /home/sbhadral/Projects/slurm_log/%j.err
+
+## -o sets the destination for the stdout.
+#SBATCH -o /home/sbhadral/Projects/slurm_log/%j.out
+
+#### Send email notifications. 
+#SBATCH --mail-type=END # options are END, NONE, BEGIN, FAIL, ALL
 #SBATCH --mail-user=sbhadralobo@ucdavis.edu 
-
-## Specify the partition.
-#SBATCH --partition=hi # other options are low, med, bigmem, serial.
-
-## Specify the number of requested nodes.
-#SBATCH --nodes=1
-
-## Specify the number of tasks per node,
-## Cannot exceed the number of processor cores on any of the requested nodes.
-#SBATCH --ntasks-per-node=1
 
 ## -e (errexit) Exit immediately if a simple command exits with a non-zero status
 set -e
@@ -37,98 +33,58 @@ set -e
 ## -u (nounset) Treat unset variables as an error when performing parameter expansion.
 set -u
 
-########## script starts here 
-########## "!!" begins comments for things I'm not sure about.
+############# command line input for running this script.
 
-## Unzip all compressed lanes, (there was a pesky README.txt.bz2 that I circumvented).
-##for FILE in *[1-2].txt.bz2 
-##do
-##	cp $FILE /home/sbhadral/Projects/CRM2_abun/
-##done
+#### Indexing the reference TE.
 
-## A select loop for running the entire process on one file at a time.
-select FILE in *[1-2].txt.bz2
-do
-	case $FILE in
-		
+##bwa index -p UniqueCRM2 UniqueCRM2.fasta
 
-## Move all unzipped files to /home/sbhadral/Projects/CRM2_abun directory. 
+## cd /group/jrigrp/bigd_fastq/
 
-for FILE in *.fastq
-do
-	mv $FILE /home/sbhadral/Projects/CRM2_abun/
-done
+#### Loop through all files while executing the script across all files in parallel.
 
-## Change to CRM2_abun directory.
+## for file in $(ls *1.txt.bz2) ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh $file ; done
 
-cd /home/sbhadral/Projects/CRM2_abun/
+############# Script start. 
 
-## Indexing the reference TE.
+#### Load the BWA module. Once the module is loaded, it is already in your path. So just 'bwa mem' will suffice.
 
-Projects/bwa-0.7.5a/bwa index -p UniqueCRM2 UniqueCRM2.fasta
+module load bwa/0.7.5a
+	
+file1=$1
+file2=$(echo $file1 | sed -e 's/_1_1/_1_2/g')
+file3=$(echo $file1 | sed -e 's/_[1-2]\.txt.bz2//')
 
-## Goes through all hapmap2 lanes (*.fastq files) and aligns against reference index of UniqueCRM2.
-## !! So these are paired end reads, I'm considering converting them to single ended reads because from my experience, the PE abundance was being underestimated.
 
-for FILE in *.fastq
-do
-	Projects/bwa-0.7.5a/bwa mem UniqueCRM2 $FILE_1 $FILE_2 > $FILE.sam		## !! Not sure about using $FILE_1 $FILE_2 to represent each mate per paired end.
-done
+## Take a paired end file and run BWA mem, convert .sam to .bam, isolate flagstat output lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p). Send to stdout.
+## NOTE: samtools is already available in your path, so no need to load it's module.
+## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
-## Takes the alignment outputs (*.fastq.sam) and converts them directly to sorted .bam using samtools.
+bwa mem /home/sbhadral/Projects/CRM2_abun/UniqueCRM2 <(bzip2 -dc $file1 )  <(bzip2 -dc $file2 ) | samtools view -Sb - > /home/sbhadral/Projects/check.%j.bam
 
-for FILE in *.fastq.sam
-do
-	Projects/samtools-0.1.19/samtools view -bS $FILE | ./samtools-0.1.19/samtools sort - $FILE.sorted ## sort output already set to .bam
-done
-
-## Creates an index file for each sorted .bam file.
-## !! Not sure if this is necessary 
-
-for FILE in *.fastq.sam.sorted.bam
-do
-	Projects/samtools-0.1.19/samtools index $FILE $FILE.bai
-done
-
-## From the sorted .bam, run flagstat for alignment statistics.
+## Add corresponding lane name to column 1 row 1.
+## From the check.%j.bam, run Samtools flagstat for alignment statistics, pipe to stdout.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
-## Extract only those two numbers (first delimited column), take each line and save to separate files. (1p > total_reads, 2p > mapped_reads) 
+## Separate out first tab delimited column, now only 2 rows.
+## Take column 1 row 2 value, move to column 3 in row 1. 
 
-for FILE in *.fastq.sam.sorted.bam
-do
-	Projects/samtools-0.1.19/samtools flagstat $FILE  | sed -n -e 1p -e 3p | cut -d " " -f 1 | sed -n 1p > total_reads.stat
-done
+echo $file3 $( samtools flagstat /home/sbhadral/Projects/check.%j.bam 	| 
+		sed -n -e 1p -e 3p 		| 
+			cut -d " " -f 1 	| 
+					paste -d ' ' - -  )					
 
-for FILE in *.fastq.sam.sorted.bam
-do
-	Projects/samtools-0.1.19/samtools flagstat $FILE  | sed -n -e 1p -e 3p | cut -d " " -f 1 | sed -n 2p > mapped_reads.stat
-done
 
-## Combine all outputs into one file. Should be organized/extracted as reads total reads per lane (odd # lines, 2n + 1) and reads mapped per lane (even #, 2n)
-##for FILE in *.fastq.sam.sorted.bam.stat
-##do
-##	cat $FILE > $FILE.combined
-##done
 
-## Delete unnecessary files.
+		
+			
+## Remove excess files.
+rm check.%j.bam
 
-for FILE in *.fastq
-rm $FILE
-done
 
-for FILE in *.fastq.sam
-rm $FILE
-done
 
-for FILE in *.fastq.sam.sorted.bam
-rm $FILE
-done
 
-for FILE in *.fastq.sam.sorted.bam.bai
-rm $FILE
-done
 
 
 ##########
-## END?
+##END
 ##########\n
