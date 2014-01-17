@@ -19,6 +19,8 @@
 ## -e sets the destination for the stderr.
 #SBATCH -e /home/sbhadral/Projects/slurm_log/%j.err
 
+
+
 ## -c sets number of cpus required per task
 #SBATCH -c 8
 
@@ -55,6 +57,8 @@ file1=$1
 file2=$(echo $file1 | sed -e 's/_1_1/_1_2/g')
 file3=$(echo $file1 | sed -e 's/_[1-2]\.txt.bz2//')
 
+
+
 # for file in *%j.out; 
 # 		
 # 		do
@@ -65,26 +69,21 @@ file3=$(echo $file1 | sed -e 's/_[1-2]\.txt.bz2//')
 #### Since this is a test run, the files of interest will already be in my directory and not in ~/group/
 
 
-## Indexing the reference TE.
-
-#bwa index -p UniqueCRM2 UniqueCRM2.fasta
-
 ## Take a test paired end file and run BWA mem, convert .sam to .bam, isolate flagstat output lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p). Send to stdout.
 ## NOTE: samtools is already available in your path, so no need to load it's module.
 ## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
-bwa mem UniqueCRM2 <(bzip2 -dc $file1 )  <(bzip2 -dc $file2 ) | samtools view -Sb - > check.%j.bam
+bwa mem /home/sbhadral/Projects/CRM2_abun/UniqueCRM2 <(bzip2 -dc $file1 )  <(bzip2 -dc $file2 ) | samtools view -Sb - > check.$%j.bam
 
-## From the check.bam, run Samtools flagstat for alignment statistics, pipe to stdout.
+## Add corresponding lane name to column 1 row 1.
+## From the check.%j.bam, run Samtools flagstat for alignment statistics, pipe to stdout.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
 ## Separate out first tab delimited column, now only 2 rows.
-## Take second value, move to column 2 in row 1. 
-## Add a third column with the corresponding lane.
-## Concatenate all lane alignment outputs into a single table.
-## Save to a single file in Projects/
+## Take column 1 row 2 value, move to column 3 in row 1. 
 
 
-echo $file3 $( samtools flagstat check.%j.bam 	| 
+
+echo $file3 $( samtools flagstat check.$%j.bam 	| 
 		sed -n -e 1p -e 3p 		| 
 			cut -d " " -f 1 	| 
 					paste -d ' ' - -  )					
@@ -96,7 +95,7 @@ echo $file3 $( samtools flagstat check.%j.bam 	|
 		
 			
 ## Remove excess files.
-rm check.%j.bam
+#rm check.$%j.bam
 
 
 
