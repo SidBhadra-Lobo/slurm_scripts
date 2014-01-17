@@ -47,9 +47,9 @@ set -u
 
 ##bwa index -p UniqueCRM2 UniqueCRM2.fasta
 
-## Loop through all files while executing the script across all files in parallel.
+## Submission Loop : loop through all files while executing the script across all files in parallel.
 
-## for file in $(ls *1.txt.bz2) ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh $file ; done
+## for file in $(ls *1.txt.bz2) ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_abun_test.sh "$file" ; done
 
 module load bwa/0.7.5a
 	
@@ -73,7 +73,7 @@ file3=$(echo $file1 | sed -e 's/_[1-2]\.txt.bz2//')
 ## NOTE: samtools is already available in your path, so no need to load it's module.
 ## samtools view (-S) specifies that the input is in .sam and (-b) sets the output format to .bam
 
-bwa mem /home/sbhadral/Projects/CRM2_abun/UniqueCRM2 <(bzip2 -dc $file1 )  <(bzip2 -dc $file2 ) | samtools view -Sb - > check.$%j.bam
+bwa mem /home/sbhadral/Projects/CRM2_abun/UniqueCRM2 <(bzip2 -dc $file1 )  <(bzip2 -dc $file2 ) | samtools view -Sb - > check.$file3.bam
 
 ## Add corresponding lane name to column 1 row 1.
 ## From the check.%j.bam, run Samtools flagstat for alignment statistics, pipe to stdout.
@@ -83,7 +83,7 @@ bwa mem /home/sbhadral/Projects/CRM2_abun/UniqueCRM2 <(bzip2 -dc $file1 )  <(bzi
 
 
 
-echo $file3 $( samtools flagstat check.$%j.bam 	| 
+echo $file3 $( samtools flagstat check.$file3.bam 	| 
 		sed -n -e 1p -e 3p 		| 
 			cut -d " " -f 1 	| 
 					paste -d ' ' - -  )					
@@ -95,7 +95,7 @@ echo $file3 $( samtools flagstat check.$%j.bam 	|
 		
 			
 ## Remove excess files.
-#rm check.$%j.bam
+rm check.$file3.bam
 
 
 
