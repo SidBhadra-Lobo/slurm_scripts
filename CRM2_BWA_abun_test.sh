@@ -19,10 +19,8 @@
 ## -e sets the destination for the stderr.
 #SBATCH -e /home/sbhadral/Projects/slurm_log/%j.err
 
-
-
 ## -c sets number of cpus required per task
-#SBATCH -c 8
+#SBATCH -c 1
 
 ## -e (errexit) Exit immediately if a simple command exits with a non-zero status
 set -e
@@ -76,7 +74,7 @@ file3=$(echo $file1 | sed -e 's/_[1-2]\.txt.bz2//')
 bwa mem /home/sbhadral/Projects/CRM2_abun/UniqueCRM2 <(bzip2 -dc $file1 )  <(bzip2 -dc $file2 ) | samtools view -Sb - > check.$file3.bam
 
 ## Add corresponding lane name to column 1 row 1.
-## From the check.%j.bam, run Samtools flagstat for alignment statistics, pipe to stdout.
+## From the check.$file3.bam, run Samtools flagstat for alignment statistics, pipe to stdout.
 ## From the outputs, isolate the lines that show total reads per lane (sed -n -e1p) and total reads mapped per lane (-e 3p).
 ## Separate out first tab delimited column, now only 2 rows.
 ## Take column 1 row 2 value, move to column 3 in row 1. 
