@@ -62,8 +62,13 @@ bwa mem /home/sbhadral/Projects/CRM2_abun/UniqueCRM2 <(bzip2 -dc $file1 )  <(bzi
 
 rm home/sbhadral/Projects/check.$file3.bam
 
+#############
 
+## command line input for isolating and concatenating outputs into a single file containing a tab delimited table.
 
+## for file in $(ls *.out) ; do less "$file" | sed -n '$p' > Hapmap2_abun/reads.$file.out ; done
+
+## sed '/serial/d' reads.out > Hapmap2_CRM2_abun.stat
 
 ##########
 ##END
