@@ -68,7 +68,9 @@ rm home/sbhadral/Projects/check.$file3.bam
 
 ## for file in $(ls *.out) ; do less "$file" | sed -n '$p' > Hapmap2_abun/reads.$file.out ; done
 
-## sed '/serial/d' reads.out > Hapmap2_CRM2_abun.stat
+##  cat *.out > reads.out 
+
+## less reads.out | sed '/serial/d' | sed '/bigmem/d' | sed '/JOBID/d' > Hapmap2_CRM2_abun.stat
 
 ##########
 ##END
