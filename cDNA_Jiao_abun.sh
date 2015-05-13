@@ -1,20 +1,20 @@
 #!/bin/bash -l
 
 ##########
-## Using BWA mem to estimate CRM2 abundance across Jiao inbred lines.
+## Using BWA mem to estimate Gene abundance from Zea_mays.AGPv3.22.cdna.all.fa across Jiao lines.
 ##########
 
 #SBATCH -D /group/jrigrp/Share/Jiao_SRA_fastq
 
-#SBATCH -J CRM2_Jiao_abun
+#SBATCH -J Jiao_cDNA_abun
 
 #SBATCH -p serial
 
 #SBATCH -c 1
 
-#SBATCH -e /home/sbhadral/Projects/slurm_log/Jiao_CRM2_abun/%j.err
+#SBATCH -e /home/sbhadral/Projects/slurm_log/Jiao_cDNA_abun/%j.err
 
-#SBATCH -o /home/sbhadral/Projects/slurm_log/Jiao_CRM2_abun/%j.out
+#SBATCH -o /home/sbhadral/Projects/slurm_log/Jiao_cDNA_abun/%j.out
 
 ## -e (errexit) Exit immediately if a simple command exits with a non-zero status
 set -e
@@ -24,15 +24,15 @@ set -u
 
 ############# command line input for running this script.
 
-#### Indexing the reference TE.
+#### Indexing the reference cDNA.
 
-##bwa index -p UniqueCRM2 UniqueCRM2.fasta
+## bwa index -p cDNA_all Zea_mays.AGPv3.22.cdna.all.fa
 
 ## cd /group/jrigrp/Share/Jiao_SRA_fastq
 
 #### Loop through all files while executing the script across all files in parallel.
 
-## for file in $(ls *_1.fastq.gz) ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_Jiao.sh "$file" ; done
+## for file in $(ls *_1.fastq.gz) ; do sbatch /home/sbhadral/Projects/scripts/cDNA_Jiao_abun.sh "$file" ; done
 
 ############# Script start. 
 
@@ -60,7 +60,7 @@ bwa mem /home/sbhadral/Projects/cDNA_abun/cDNA_all  $file1   $file2  |
 							sed -n '$p')					
 
 
-rm home/sbhadral/Projects/check.$file3.bam
+rm /home/sbhadral/Projects/check.$file3.bam
 
 #############
 
@@ -68,9 +68,8 @@ rm home/sbhadral/Projects/check.$file3.bam
 
 ## for file in $(ls *.out) ; do less "$file" | sed -n '$p' > Hapmap2_abun/reads.$file.out ; done
 
-##  cat *.out > reads.out 
+## cat *.out | sed '/serial/'d | sed '/bigmem/'d | sed '/JOBID/'d | awk '!a[$0]++' | less | wc -l > Hapmap2_CRM2_abun.stat
 
-## less reads.out | sed '/serial/d' | sed '/bigmem/d' | sed '/JOBID/d' > Hapmap2_CRM2_abun.stat
 
 ##########
 ##END

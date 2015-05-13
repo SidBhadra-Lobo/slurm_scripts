@@ -1,20 +1,20 @@
 #!/bin/bash -l
 
 ##########
-## Using BWA mem to estimate CRM2 abundance across Jiao inbred lines.
+## Using BWA mem to estimate CRM2 abundance across hapmap2 inbred lines.
 ##########
 
-#SBATCH -D /group/jrigrp/Share/Jiao_SRA_fastq
+#SBATCH -D /group/jrigrp/Share/PaulB_Data/Run1_Fwd
 
-#SBATCH -J CRM2_Jiao_abun
+#SBATCH -J RIMMA_BWA
 
 #SBATCH -p serial
 
 #SBATCH -c 1
 
-#SBATCH -e /home/sbhadral/Projects/slurm_log/Jiao_CRM2_abun/%j.err
+#SBATCH -e /home/sbhadral/Projects/slurm_log/RIMMA_cDNA_abun/%j.err
 
-#SBATCH -o /home/sbhadral/Projects/slurm_log/Jiao_CRM2_abun/%j.out
+#SBATCH -o /home/sbhadral/Projects/slurm_log/RIMMA_cDNA_abun/%j.out
 
 ## -e (errexit) Exit immediately if a simple command exits with a non-zero status
 set -e
@@ -24,15 +24,15 @@ set -u
 
 ############# command line input for running this script.
 
-#### Indexing the reference TE.
+#### Indexing the reference file.
 
-##bwa index -p UniqueCRM2 UniqueCRM2.fasta
+##bwa index -p cDNA_all Zea_mays.AGPv3.22.cdna.all.fa
 
-## cd /group/jrigrp/Share/Jiao_SRA_fastq
+## cd /group/jrigrp/Share/PaulB_Data/Run1_Fwd
 
 #### Loop through all files while executing the script across all files in parallel.
 
-## for file in $(ls *_1.fastq.gz) ; do sbatch /home/sbhadral/Projects/scripts/CRM2_BWA_Jiao.sh "$file" ; done
+## for file in $(ls RIMMA*.fastq) ; do sbatch /home/sbhadral/Projects/scripts/RIMMA_BWA.sh "$file" ; done
 
 ############# Script start. 
 
@@ -40,16 +40,16 @@ set -u
 module load bwa/0.7.5a
 	
 file1=$1
-file2=$(echo $file1 | sed -e 's/_[0-9]_1/_[0-9]_2/g')
-file3=$(echo $file1 | sed -e 's/_[1-2]\.fastq.gz//')
+## file2=$(echo $file1 | sed -e 's/_[0-9]_1/_[0-9]_2/g')
+## file3=$(echo $file1 | sed -e 's/_[1-2]\.fastq.gz//')
 
 
-bwa mem /home/sbhadral/Projects/cDNA_abun/cDNA_all  $file1   $file2  | 
+bwa mem /home/sbhadral/Projects/cDNA_abun/cDNA_all  $file1 |  ## $file2  | 
 		
-		samtools view -Sb - > /home/sbhadral/Projects/check.$file3.bam
+		samtools view -Sb -h - > /home/sbhadral/Projects/check.$file1.bam
 
 
-	echo $file3 $( samtools flagstat /home/sbhadral/Projects/check.$file3.bam 	| 
+	echo $file1 $( samtools flagstat /home/sbhadral/Projects/check.$file1.bam 	| 
 		
 		sed -n -e 1p -e 3p 		| 
 		
@@ -60,7 +60,7 @@ bwa mem /home/sbhadral/Projects/cDNA_abun/cDNA_all  $file1   $file2  |
 							sed -n '$p')					
 
 
-rm home/sbhadral/Projects/check.$file3.bam
+rm home/sbhadral/Projects/check.$file1.bam
 
 #############
 
